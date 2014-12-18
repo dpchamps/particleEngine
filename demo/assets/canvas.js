@@ -40,7 +40,7 @@ function resizeCanvas(){
     w = canvas.width;
     h = canvas.height;
     cluster.origin = {
-        x: w+20,
+        x: w/2,
         y: -20
     };
     cluster.degradeRate = Math.sqrt((w*w)+(h*h));
@@ -63,7 +63,7 @@ function render(cluster){
         if(cluster.numParticles()<cluster.max){
             while(i++ < cluster.density && cluster.numParticles() < cluster.max){
                 cluster.addParticle({
-                    dir: Math.PI + (Math.random()*(3*Math.PI/2 - Math.PI)),
+                    dir: Math.PI + (Math.random()*(Math.PI*2 - Math.PI)),
                     speed: {
                         x: (Math.random()*2)+2,
                         y: (Math.random()*2)+2

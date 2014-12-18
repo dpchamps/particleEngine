@@ -38,6 +38,19 @@ var particleEngine = function(args) {
 
         return o;
     }
+    //basic extend function to clean this code up a bit
+    function extend(dest, sources){
+        var args = Array.prototype.slice.call(arguments);
+        for(var i = 1; i < args.length; i++){
+            for(var key in args[i]){
+                if(args[i].hasOwnProperty(key)){
+                    dest[key] = args[i][key];
+                }
+            }
+        }
+        return dest;
+    }
+
     return{
         //returns an object for interacting with a set of particles
         particleSet : function(origin, color, degradeRate, args){
