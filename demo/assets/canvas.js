@@ -15,17 +15,34 @@ var canvas = document.getElementById("canvas"),
     animFrame = null;
 
 
-var cluster = engine.particleSet(
-    {x: 250,
+
+var cluster = engine.particleSet({
+    origin : {
+        x: 250,
         y: 250
     },
-    [250,200,200],
-    Math.sqrt((w*w)+(h*h)) / 2,
-    {
-        max: 120,
-        density: 1
+    color: [100, 180,200],
+    degradeRate: Math.sqrt((w*w)+(h*h)) / 2,
+    max: 200,
+    density: 5
+});
+cluster.fountain = (function(){
+    var i = 0;
+
+    if(cluster.numParticles()<cluster.max){
+        while(i++ < cluster.density && cluster.numParticles() < cluster.max){
+            cluster.addParticle({
+                dir: Math.PI + (Math.random()*(Math.PI*2 - Math.PI)),
+                speed: {
+                    x: (Math.random()*2)+2,
+                    y: (Math.random()*2)+2
+                },
+                alpha: 1,
+                size: (Math.random()*2)+3
+            });
+        }
     }
-);
+});
 resizeCanvas();
 
 renderArray.push(cluster);
@@ -57,23 +74,7 @@ function animationLoop(){
 }
 
 function render(cluster){
-    cluster.fountain(function(){
-        var i = 0;
-
-        if(cluster.numParticles()<cluster.max){
-            while(i++ < cluster.density && cluster.numParticles() < cluster.max){
-                cluster.addParticle({
-                    dir: Math.PI + (Math.random()*(Math.PI*2 - Math.PI)),
-                    speed: {
-                        x: (Math.random()*2)+2,
-                        y: (Math.random()*2)+2
-                    },
-                    alpha: 1,
-                    size: (Math.random()*2)+3
-                });
-            }
-        }
-    });
+    cluster.fountain();
 
     cluster.step(ctx);
 }
