@@ -2,15 +2,9 @@
 
 var document = root.document || {};
 
-var particleEngine = function(args) {
+var particleEngine = function() {
     /*
-     validation method, expects type object:
-     {
-     dir: direction in radians,
-     speed,
-     alpha,
-     size
-     }
+     validation method,
      */
     function validParticle(o){
         if(typeof o !== 'object'){
@@ -50,11 +44,8 @@ var particleEngine = function(args) {
         }
         return dest;
     }
-    function step(context){
-
-    }
-    //this gets extended when a new cluster is created
-    var particleSetBase = {
+    //defaults
+    var particleDefaults = {
         max : 100,
         density: 10,
         gravity: {
@@ -67,6 +58,9 @@ var particleEngine = function(args) {
         particles : [],
         degradeRate: 0,
         finishFlag: false,
+    };
+    //functions
+    var particleFunctions = {
         emitter : function(){
             //dummy function
         },
@@ -84,46 +78,58 @@ var particleEngine = function(args) {
                 console.log(e);
             }
         },
+        getDistance : function(particle){
+            var diffX = particle.x - this.origin.x,
+                diffY = particle.y - this.origin.y;
+            return Math.sqrt((diffX*diffX)+(diffY*diffY));
+        },
+        move : function(particle){
+            particle.x += particle.speed.x * Math.cos(particle.dir);
+            //adjust for gravity
+            if(this.gravity.cur < this.gravity.max){
+                this.gravity.cur += this.gravity.step;
+                particle.speed.y += this.gravity.cur;
+            }
+            particle.y -= particle.speed.y * Math.sin(particle.dir);
+        },
+        degrade : function(particle, i){
+            var dis = this.getDistance(particle);
+            particle.alpha = 1 - (dis/this.degradeRate);
+            if(particle.alpha <= 0 || particle.size <= 0){
+                this.particles.splice(i, 1);
+
+            }
+            /*
+            todo: needs to be an intelligent way to reduce size without messing up the draw function
+            //adjust based on size
+            if(particle.alpha <= 0.4){
+                particle.size = particle.size - 0.01;
+            }
+            */
+        },
+        draw : function(particle, context){
+            context.fillStyle = 'rgba('+this.color +','+particle.alpha+')';
+            context.beginPath();
+
+            context.arc(particle.x, particle.y, particle.size, 0, Math.PI*2, true);
+            context.closePath();
+            context.fill();
+        },
         //step through cluster, i.e: move particles in cluster
         //  fills canvas as well (for now) decouple this
+        //todo: this needs to be a smaller function
         step : function(context){
             for(var i = 0; i < this.numParticles(); i++){
                 var particle = this.particles[i];
 
-                //get distance from origin
-                var diffX = particle.x - this.origin.x;
-                var diffY = particle.y - this.origin.y;
-                var dis = Math.sqrt((diffX*diffX)+(diffY*diffY));
                 //move particles based on rads
+                this.move(particle);
+                //degrade aplha / size
+                this.degrade(particle, i);
 
-                particle.x += particle.speed.x * Math.cos(particle.dir);
-                //adjust for gravity
-                if(this.gravity.cur < this.gravity.max){
-                    this.gravity.cur += this.gravity.step;
-                    particle.speed.y += this.gravity.cur;
-                }
-                particle.y -= particle.speed.y * Math.sin(particle.dir);
+                //draw
+                this.draw(particle, context);
 
-                //adjust based on alpha
-                particle.alpha = 1 - (dis/this.degradeRate);
-
-                //adjust based on size
-                if(particle.alpha <= 0.4){
-                    particle.size = particle.size - 0.01;
-                }
-
-                if(particle.alpha <= 0 || particle.size <= 0){
-                    this.particles.splice(i, 1);
-                    continue;
-                }
-
-                context.fillStyle = 'rgba('+this.color +','+particle.alpha+')';
-                //console.log(context.fillStyle);
-                context.beginPath();
-
-                context.arc(particle.x, particle.y, particle.size, 0, Math.PI*2, true);
-                context.closePath();
-                context.fill();
             }
         }
     };
@@ -144,7 +150,7 @@ var particleEngine = function(args) {
 
             //join color
             args.color = args.color.join();
-            return extend(particleSetBase, args);
+            return extend(particleFunctions, particleDefaults, args);
         }
 
     };

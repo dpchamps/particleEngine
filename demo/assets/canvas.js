@@ -24,15 +24,15 @@ var cluster = engine.particleSet({
     color: [100, 180,200],
     degradeRate: Math.sqrt((w*w)+(h*h)) / 2,
     max: 200,
-    density: 5
+    density: 2
 });
-cluster.fountain = (function(){
+cluster.emitter = (function(){
     var i = 0;
 
     if(cluster.numParticles()<cluster.max){
         while(i++ < cluster.density && cluster.numParticles() < cluster.max){
             cluster.addParticle({
-                dir: Math.PI + (Math.random()*(Math.PI*2 - Math.PI)),
+                dir: (5*Math.PI)/4 + (Math.random()*((7*Math.PI)/4 - (5*Math.PI)/4)),
                 speed: {
                     x: (Math.random()*2)+2,
                     y: (Math.random()*2)+2
@@ -58,7 +58,7 @@ function resizeCanvas(){
     h = canvas.height;
     cluster.origin = {
         x: w/2,
-        y: -20
+        y: -60
     };
     cluster.degradeRate = Math.sqrt((w*w)+(h*h));
 }
@@ -74,8 +74,10 @@ function animationLoop(){
 }
 
 function render(cluster){
-    cluster.fountain();
+    cluster.emitter();
 
     cluster.step(ctx);
+
+
 }
 /* end demo script */
