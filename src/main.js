@@ -57,7 +57,7 @@ var particleEngine = function() {
         color : [],
         particles : [],
         degradeRate: 0,
-        finishFlag: false,
+        finishFlag: false
     };
     //functions
     var particleFunctions = {
@@ -117,7 +117,6 @@ var particleEngine = function() {
         },
         //step through cluster, i.e: move particles in cluster
         //  fills canvas as well (for now) decouple this
-        //todo: this needs to be a smaller function
         step : function(context){
             for(var i = 0; i < this.numParticles(); i++){
                 var particle = this.particles[i];
