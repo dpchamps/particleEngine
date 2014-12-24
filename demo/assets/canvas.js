@@ -30,7 +30,7 @@ collectionFolder.add(collection.clusterOverrides, 'spread',0, 2*Math.PI);
 collectionFolder.add(collection.clusterOverrides, 'decay').min(0);
 collectionFolder.add(collection.clusterOverrides, 'alpha',0,1);
 
-speed = collectionFolder.addFolder('Speed')
+speed = collectionFolder.addFolder('Speed');
 
 speed.add(collection.clusterOverrides.speed, 'x').min(0);
 speed.add(collection.clusterOverrides.speed, 'y').min(0);

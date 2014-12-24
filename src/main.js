@@ -1,4 +1,13 @@
-/* particleEngine main */
+/* particleEngine main
+*
+* Notes, in the form of a todo checklist
+*
+* todo: decouple collection from emitter, make all variables editable
+* todo: remove unnecessary variables and code that was added to find the infamous extend bug
+* todo: add a 'continuous' variable, self explanatory
+* todo: using dat GUI, make an 'exportParticle' for ease of creating particles and emitters... a sort of "particle creator" perhaps... yes...
+*
+* */
 
 var document = root.document || {};
 
