@@ -40,9 +40,9 @@ function animationLoop(){
         ctx.clearRect(0,0,w,h);
         for(var i = 0; i < renderArray.length; i++){
             render(renderArray[i]);
-            if(renderArray[i].numParticles() <= 0){
-                renderArray.splice(i,1);
-            }
+            //if(renderArray[i].numParticles() <= 0){
+            //    renderArray.splice(i,1);
+            //}
         }
 
     }

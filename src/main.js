@@ -52,9 +52,7 @@ var particles = function(context) {
              if(this.numParticles()<this.properties.max && this.properties.finished === false){
                  while(i++ < this.properties.density ){
                     this.addParticle();
-                    if(this.numParticles() >= this.properties.max){
-                        this.properties.finished = true;
-                    }
+
                  }
 
              }else{
@@ -94,7 +92,7 @@ var particles = function(context) {
                     y: (Math.random()*2)+2
                 },
                 alpha: 1,
-                size: (Math.random()*2)+3,
+                size: Math.random()*10,
                 decay: Math.sqrt( (_context.canvas.width*_context.canvas.width)+(_context.canvas.height*_context.canvas.height) ) / 2
             };
         }
@@ -128,9 +126,10 @@ var particles = function(context) {
     };
 
     var collectionDefaults = {
-        max: 100 ,
+        max: 500 ,
         density: 1,
-        finished : false
+        finished : false,
+        stopped: false
     };
 
     /*
@@ -158,12 +157,14 @@ var particles = function(context) {
             emitter : emitter,
             emitterFunction : emitterFunction,
             addParticle : function(p){
-                p = p || {};
-                var _particle = extend({}, particle, particleProps(), p);
-                _particle.position.x = this.emitter.properties.origin.x;
-                _particle.position.y = this.emitter.properties.origin.y;
-                particleArr.push(_particle);
-
+                //only add more particles if the collection isn't stopped
+                if(this.properties.stopped === false){
+                    p = p || {};
+                    var _particle = extend({}, particle, particleProps(), p);
+                    _particle.position.x = this.emitter.properties.origin.x;
+                    _particle.position.y = this.emitter.properties.origin.y;
+                    particleArr.push(_particle);
+                }
             },
             numParticles : function(){
                 return particleArr.length;
@@ -173,41 +174,41 @@ var particles = function(context) {
                 //This is an optimized for loop:
                 // http://jsperf.com/for-loops22/2
 
-                for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
-                //for(var i = 0; i < this.numParticles(); i++){
-                    //var particle = particleArr[i];
-                    //move particle
+                    for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
+                    //for(var i = 0; i < this.numParticles(); i++){
+                        //var particle = particleArr[i];
+                        //move particle
 
-                    particle.position.x += particle.speed.x * Math.cos(particle.direction);
-                    particle.position.y -= particle.speed.y * Math.sin(particle.direction);
+                        particle.position.x += particle.speed.x * Math.cos(particle.direction);
+                        particle.position.y -= particle.speed.y * Math.sin(particle.direction);
 
-                    //get particle distance from origin
-                    var diffX = particle.position.x - emitter.properties.origin.x,
-                        diffY = particle.position.y - emitter.properties.origin.y,
-                        distance = Math.sqrt((diffX*diffX)+(diffY*diffY));
-                    //decay particle
+                        //get particle distance from origin
+                        var diffX = particle.position.x - emitter.properties.origin.x,
+                            diffY = particle.position.y - emitter.properties.origin.y,
+                            distance = Math.sqrt((diffX*diffX)+(diffY*diffY));
+                        //decay particle
 
-                    particle.alpha = 1 - (distance / particle.decay);
+                        particle.alpha = 1 - (distance / particle.decay);
 
-                    if(particle.alpha <= 0){
-                        particleArr.splice(i, 1);
+                        if(particle.alpha <= 0){
+                            particleArr.splice(i, 1);
+                        }
+                        //draw particle
+                        //todo: shape, sprite
+                        _context.fillStyle = "rgba("+particle.color.join()+","+particle.alpha +")";
+
+                        _context.beginPath();
+                        _context.arc(
+                            particle.position.x,
+                            particle.position.y,
+                            particle.size,
+                            0,
+                                Math.PI*2,
+                            true
+                        );
+                        _context.closePath();
+                        _context.fill();
                     }
-                    //draw particle
-                    //todo: shape, sprite
-                    _context.fillStyle = "rgba("+particle.color.join()+","+particle.alpha +")";
-
-                    _context.beginPath();
-                    _context.arc(
-                        particle.position.x,
-                        particle.position.y,
-                        particle.size,
-                        0,
-                            Math.PI*2,
-                        true
-                    );
-                    _context.closePath();
-                    _context.fill();
-                }
             }
         };
     };
