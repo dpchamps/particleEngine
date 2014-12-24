@@ -17,6 +17,33 @@ var collection = engine.collection(emitter);
 
 
 resizeCanvas();
+var gui = new dat.GUI();
+gui.add(collection.properties, 'stopped');
+gui.addColor(collection.clusterOverrides, 'color');
+
+var collectionFolder = gui.addFolder('Collection'),
+    emitterFolder = gui.addFolder('Emitter');
+
+collectionFolder.add(collection.clusterOverrides, 'size',0, 100);
+collectionFolder.add(collection.clusterOverrides, 'direction',0, 2*Math.PI);
+collectionFolder.add(collection.clusterOverrides, 'spread',0, 2*Math.PI);
+collectionFolder.add(collection.clusterOverrides, 'decay').min(0);
+collectionFolder.add(collection.clusterOverrides, 'alpha',0,1);
+
+speed = collectionFolder.addFolder('Speed')
+
+speed.add(collection.clusterOverrides.speed, 'x').min(0);
+speed.add(collection.clusterOverrides.speed, 'y').min(0);
+speed.add(collection.clusterOverrides, 'speedVariation').min(0);
+
+collectionFolder.add(collection.properties, 'max');
+collectionFolder.add(collection.properties, 'density');
+emitterFolder.add(emitter.properties, "height").min(0).step(5);
+emitterFolder.add(emitter.properties, "width").min(0).step(5);
+emitterFolder.add(emitter.properties.origin, "x");
+emitterFolder.add(emitter.properties.origin, "y");
+//gui.add(emitter.properties, "width");
+
 renderArray.push(collection);
 animationLoop();
 
@@ -28,7 +55,6 @@ function resizeCanvas(){
     engine.updateContext(ctx);
     w = canvas.width;
     h = canvas.height;
-    console.log(w, h);
     collection.emitter.setOrigin(w/2, h/2);
 
 
@@ -40,9 +66,7 @@ function animationLoop(){
         ctx.clearRect(0,0,w,h);
         for(var i = 0; i < renderArray.length; i++){
             render(renderArray[i]);
-            //if(renderArray[i].numParticles() <= 0){
-            //    renderArray.splice(i,1);
-            //}
+
         }
 
     }
@@ -51,5 +75,6 @@ function animationLoop(){
 function render(collection){
 
     collection.draw();
+
 }
 /* end demo script */

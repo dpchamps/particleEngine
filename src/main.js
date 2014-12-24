@@ -30,6 +30,14 @@ var particles = function(context) {
         }
         return dest;
     }
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
 
     /*
 
@@ -52,7 +60,9 @@ var particles = function(context) {
              if(this.numParticles()<this.properties.max && this.properties.finished === false){
                  while(i++ < this.properties.density ){
                     this.addParticle();
-
+                    //if(this.numParticles() >= this.properties.max){
+                    //    this.properties.finished = true;
+                    //}
                  }
 
              }else{
@@ -86,7 +96,7 @@ var particles = function(context) {
         test : function(){
             return {
                 direction: (5*Math.PI)/4 + (Math.random()*((7*Math.PI)/4 - (5*Math.PI)/4)),
-                color: [0, 0, 0],
+                color: [0,0,0],
                 speed: {
                     x: (Math.random()*2)+2,
                     y: (Math.random()*2)+2
@@ -126,7 +136,7 @@ var particles = function(context) {
     };
 
     var collectionDefaults = {
-        max: 500 ,
+        max: 100 ,
         density: 1,
         finished : false,
         stopped: false
@@ -141,12 +151,27 @@ var particles = function(context) {
         if(typeof emitter === 'undefined'){
             throw new Error("Emitter needs to be passed to a collection");
         }
+
         //where args can override max, and density
         var particleProps = particleTypes[emitter.getParticle],
             emitterProps = emitter.properties,
             emitterFunction = emitterFunctions[emitter.behavior],
             particleArr = [],
-            properties = extend({}, collectionDefaults, args);
+            properties = extend({}, collectionDefaults, args),
+            //an object to override particle properties before pushing them into the array
+            clusterOverrides = {
+                color : [17, 80.00009, 90],
+                size : 5,
+                direction: 1,
+                decay:  Math.sqrt( (_context.canvas.width*_context.canvas.width)+(_context.canvas.height*_context.canvas.height) ) / 2,
+                spread: 0,
+                speed: {
+                    x: (Math.random()*2)+2,
+                    y: (Math.random()*2)+2
+                },
+                speedVariation : 1,
+                alpha: 1
+            };
 
         return {
             __testReturnArr : function(){
@@ -160,12 +185,34 @@ var particles = function(context) {
                 //only add more particles if the collection isn't stopped
                 if(this.properties.stopped === false){
                     p = p || {};
-                    var _particle = extend({}, particle, particleProps(), p);
-                    _particle.position.x = this.emitter.properties.origin.x;
-                    _particle.position.y = this.emitter.properties.origin.y;
+                    var _particle = extend({}, particle, particleProps(), p),
+                        minX = 1,
+                        minY = 1,
+                        maxX = emitter.properties.width,
+                        maxY = emitter.properties.height,
+
+                        org = {
+                            x: emitter.properties.origin.x * minX + (Math.random()*(maxX - minX)),
+                            y: emitter.properties.origin.y * minY + (Math.random()*(maxY - minY))
+                        };
+
+                    extend(_particle.position, org);
+                    /*
+                    this is all test stuff, we'll fold it in later
+                     */
+                    extend(_particle, clusterOverrides);
+                    _particle.direction += Math.random()*_particle.spread;
+                    _particle.speed.x += Math.random()*_particle.speedVariation;
+                    _particle.speed.y += Math.random()*_particle.speedVariation;
+                    if(typeof _particle.color === 'string'){
+                        var colors = hexToRgb(_particle.color);
+                        _particle.color = [colors.r, colors.g, colors.b];
+                    }
+                    _particle.color = _particle.color.map(Math.floor);
                     particleArr.push(_particle);
                 }
             },
+            clusterOverrides : clusterOverrides,
             numParticles : function(){
                 return particleArr.length;
             },
@@ -195,6 +242,7 @@ var particles = function(context) {
                         }
                         //draw particle
                         //todo: shape, sprite
+
                         _context.fillStyle = "rgba("+particle.color.join()+","+particle.alpha +")";
 
                         _context.beginPath();
@@ -224,8 +272,8 @@ var particles = function(context) {
                 x: 0,
                 y: 0
             },
-            height : 0,
-            width:0
+            height : 1,
+            width:1
         },
             type, emit;
         //
