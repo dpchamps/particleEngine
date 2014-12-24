@@ -134,7 +134,7 @@ var particles = function(context) {
 
     var collectionDefaults = {
         max: 100 ,
-        density: 30,
+        density: 1,
         finished : false
     };
 
@@ -178,9 +178,9 @@ var particles = function(context) {
                 //This is an optimized for loop:
                 // http://jsperf.com/for-loops22/2
 
-                //for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
-                for(var i = 0; i < this.numParticles(); i++){
-                    var particle = particleArr[i];
+                for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
+                //for(var i = 0; i < this.numParticles(); i++){
+                    //var particle = particleArr[i];
                     //move particle
 
                     particle.position.x += particle.speed.x * Math.cos(particle.direction);
@@ -195,7 +195,6 @@ var particles = function(context) {
                     particle.alpha = 1 - (distance / particle.decay);
 
                     if(particle.alpha <= 0){
-                        
                         particleArr.splice(i, 1);
                     }
                     //draw particle
