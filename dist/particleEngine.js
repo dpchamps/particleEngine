@@ -7,9 +7,6 @@
 *
 * Notes, in the form of a todo checklist
 *
-* todo: decouple collection from emitter, make all variables editable
-* todo: remove unnecessary variables and code that was added to find the infamous extend bug
-* todo: add a 'continuous' variable, self explanatory
 * todo: using dat GUI, make an 'exportParticle' for ease of creating particles and emitters... a sort of "particle creator" perhaps... yes...
 *
 * */
@@ -17,9 +14,6 @@
 var document = root.document || {};
 
 var particles = function(context) {
-    /*
-     todo: let's make sure this is actually a canvas 2d context
-     */
     if(typeof context === 'undefined'){
         throw new Error('particles must be defined with a canvas context');
     }
@@ -75,40 +69,6 @@ var particles = function(context) {
 
         return particle;
     }
-
-    /*
-
-     Pre-defined functions for emitter
-
-     */
-    var emitterFunctions = {
-        fountain : function(){
-            console.log("fountain");
-        },
-        explosion : function(){
-            console.log("explosion");
-        },
-        stream : function(){
-            console.log("stream");
-        },
-        test : function(){
-            var i = 0;
-
-             if(this.numParticles()<this.properties.max && this.properties.finished === false){
-                 while(i++ < this.properties.density ){
-                    this.addParticle();
-                    //if(this.numParticles() >= this.properties.max){
-                    //    this.properties.finished = true;
-                    //}
-                 }
-
-             }else{
-
-             }
-
-        }
-    };
-
     /*
 
      Pre-defined particle Types
@@ -197,10 +157,8 @@ var particles = function(context) {
             throw new Error("Emitter needs to be passed to a collection");
         }
 
-
         var particleArr = [],
             properties = extend({}, collectionDefaults, args);
-
 
         return {
             properties : properties,
@@ -242,7 +200,6 @@ var particles = function(context) {
             },
             draw : function(){
                 this.cycle();
-                //This is an optimized for loop:
                 // http://jsperf.com/for-loops22/2
                     for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
                         //move particle
