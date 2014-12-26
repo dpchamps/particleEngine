@@ -177,6 +177,7 @@ var particles = function(context) {
     var collectionDefaults = {
         max: 100 ,
         density: 1,
+        cycleOnce: false,
         finished : false,
         stopped: false
     };
@@ -192,20 +193,33 @@ var particles = function(context) {
         }
 
 
-        var emitterFunction = emitterFunctions[emitter.behavior],
-            particleArr = [],
+        var particleArr = [],
             properties = extend({}, collectionDefaults, args);
 
 
         return {
             properties : properties,
             emitter : emitter,
-            emitterFunction : emitterFunction,
+            cycle : function(){
+                var i = 0;
+                if(this.numParticles()<this.properties.max && this.properties.finished === false){
+                    while(i++ < this.properties.density ){
+                        this.addParticle();
+                        if(this.numParticles() >= this.properties.max && this.properties.cycleOnce){
+                            this.properties.finished = true;
+                        }
+                    }
+                }
+            },
+            reset : function(){
+                particleArr = [];
+                _context.clearRect(0,0,_context.canvas.width, _context.canvas.height);
+                this.properties.finished = false;
+            },
             addParticle : function(){
                 //only add more particles if the collection isn't stopped
                 if(this.properties.stopped === false){
                     var _particle = extend({}, particle, emitter.particle);
-                    
                     //this is where we give particles the variation through all of the various spreads
                     _particle = particleVariation(_particle);
                     //place particle based on emitter height / width
@@ -222,13 +236,13 @@ var particles = function(context) {
                 return particleArr.length;
             },
             draw : function(){
-                this.emitterFunction();
+                this.cycle();
                 //This is an optimized for loop:
                 // http://jsperf.com/for-loops22/2
                     for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
                         //move particle
                         particle.position.x += (particle.speed.x) * Math.cos(particle.direction);
-                        particle.position.y -= (particle.speed.y) * particle.speed.y * Math.sin(particle.direction);
+                        particle.position.y -= (particle.speed.y) * Math.sin(particle.direction);
 
                         //get particle distance from origin
                         var diffX = particle.position.x - emitter.properties.origin.x,

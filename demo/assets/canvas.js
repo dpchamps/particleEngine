@@ -19,7 +19,8 @@ var collection = engine.collection(emitter);
 resizeCanvas();
 var gui = new dat.GUI();
 gui.add(collection.properties, 'stopped');
-console.log(collection.emitter.particle.color);
+gui.add(collection.properties, 'cycleOnce');
+gui.add(collection, 'reset');
 gui.addColor(emitter.particle, 'color');
 
 
