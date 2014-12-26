@@ -19,22 +19,29 @@ var collection = engine.collection(emitter);
 resizeCanvas();
 var gui = new dat.GUI();
 gui.add(collection.properties, 'stopped');
-gui.addColor(collection.clusterOverrides, 'color');
+console.log(collection.emitter.particle.color);
+gui.addColor(emitter.particle, 'color');
 
-var collectionFolder = gui.addFolder('Collection'),
-    emitterFolder = gui.addFolder('Emitter');
 
-collectionFolder.add(collection.clusterOverrides, 'size',0, 100);
-collectionFolder.add(collection.clusterOverrides, 'direction',0, 2*Math.PI);
-collectionFolder.add(collection.clusterOverrides, 'spread',0, 2*Math.PI);
-collectionFolder.add(collection.clusterOverrides, 'decay').min(0);
-collectionFolder.add(collection.clusterOverrides, 'alpha',0,1);
+var particleFolder = gui.addFolder('Particle'),
+    collectionFolder = gui.addFolder('Collection'),
+    emitterFolder = gui.addFolder('Emitter'),
+    size= particleFolder.addFolder('Size');
 
-speed = collectionFolder.addFolder('Speed');
+ 
+size.add(collection.emitter.particle.size, 'x',0, 100);
+size.add(collection.emitter.particle.size, 'y',0, 100);
+size.add(collection.emitter.particle.size, 'spread',0, 100);
+particleFolder.add(collection.emitter.particle, 'direction',0, 2*Math.PI);
+particleFolder.add(collection.emitter.particle, 'spread',0, 2*Math.PI);
+particleFolder.add(collection.emitter.particle, 'decay').min(0);
+particleFolder.add(collection.emitter.particle, 'alpha',0,1);
 
-speed.add(collection.clusterOverrides.speed, 'x').min(0);
-speed.add(collection.clusterOverrides.speed, 'y').min(0);
-speed.add(collection.clusterOverrides, 'speedVariation').min(0);
+speed = particleFolder.addFolder('Speed');
+
+speed.add(collection.emitter.particle.speed, 'x').min(0);
+speed.add(collection.emitter.particle.speed, 'y').min(0);
+speed.add(collection.emitter.particle.speed, 'spread').min(0);
 
 collectionFolder.add(collection.properties, 'max');
 collectionFolder.add(collection.properties, 'density');

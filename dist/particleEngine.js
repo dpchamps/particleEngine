@@ -3,7 +3,16 @@
   "use strict";
 
 
-/* particleEngine main */
+/* particleEngine main
+*
+* Notes, in the form of a todo checklist
+*
+* todo: decouple collection from emitter, make all variables editable
+* todo: remove unnecessary variables and code that was added to find the infamous extend bug
+* todo: add a 'continuous' variable, self explanatory
+* todo: using dat GUI, make an 'exportParticle' for ease of creating particles and emitters... a sort of "particle creator" perhaps... yes...
+*
+* */
 
 var document = root.document || {};
 
@@ -17,7 +26,7 @@ var particles = function(context) {
     //internal context
     var _context = context;
     /*
-     An extend function
+     An extend function, makes deep copies
      */
     function extend(dest, sources){
         var args = Array.prototype.slice.call(arguments);
@@ -35,6 +44,7 @@ var particles = function(context) {
         }
         return dest;
     }
+    //turn hex to rgb, this is necessary for DAT gui, there's some kind of bug that causes it to assign a color to a hex value sometimes
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -42,6 +52,28 @@ var particles = function(context) {
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : null;
+    }
+    //A min / max random generator
+    function minMax(min, max){
+        return (min) + (Math.random() * (max - min));
+    }
+    function particleVariation(particle){
+        particle.direction = minMax(particle.direction, particle.spread);
+
+        particle.speed.x += Math.random()*particle.speed.spread;
+        particle.speed.y += Math.random()*particle.speed.spread;
+
+        particle.size.x += Math.random()*particle.size.spread;
+        particle.size.y += Math.random()*particle.size.spread;
+
+        //for a dat gui bug
+        if(typeof particle.color === 'string'){
+            var colors = hexToRgb(particle.color);
+            particle.color = [colors.r, colors.g, colors.b];
+        }
+        particle.color = particle.color.map(Math.floor);
+
+        return particle;
     }
 
     /*
@@ -98,18 +130,22 @@ var particles = function(context) {
         smoke : {
 
         },
-        test : function(){
-            return {
-                direction: (5*Math.PI)/4 + (Math.random()*((7*Math.PI)/4 - (5*Math.PI)/4)),
+        test : {
+                direction: (7*Math.PI)/4,
+                spread: (5*Math.PI)/4,
                 color: [0,0,0],
                 speed: {
-                    x: (Math.random()*2)+2,
-                    y: (Math.random()*2)+2
+                    x: 0.5,
+                    y: 0.5,
+                    spread: 2
                 },
                 alpha: 1,
-                size: Math.random()*10,
+                size: {
+                    x: 1,
+                    y: 1,
+                    spread: 4
+                },
                 decay: Math.sqrt( (_context.canvas.width*_context.canvas.width)+(_context.canvas.height*_context.canvas.height) ) / 2
-            };
         }
     };
 
@@ -119,23 +155,26 @@ var particles = function(context) {
 
      */
     var particle = {
-        weight: 0,
+        weight: 0, //not implemented
         direction : 0,
+        spread: 0,
         position : {
             x: 0,
             y: 0
         },
         speed: {
             x: 0,
-            y: 0
+            y: 0,
+            spread: 0
         },
-        color : "",
+        color : [],
         size: {
             height: 0,
-            width: 0
+            width: 0,
+            spread: 0
         },
-        sprite: false,
-        shape: false,
+        sprite: false, //not implemented
+        shape: false,  //not implemented
         alpha: 0,
         decay: 0
     };
@@ -157,67 +196,33 @@ var particles = function(context) {
             throw new Error("Emitter needs to be passed to a collection");
         }
 
-        //where args can override max, and density
-        var particleProps = particleTypes[emitter.getParticle],
-            emitterProps = emitter.properties,
-            emitterFunction = emitterFunctions[emitter.behavior],
+
+        var emitterFunction = emitterFunctions[emitter.behavior],
             particleArr = [],
-            properties = extend({}, collectionDefaults, args),
-            //an object to override particle properties before pushing them into the array
-            clusterOverrides = {
-                color : [17, 80.00009, 90],
-                size : 5,
-                direction: 1,
-                decay:  Math.sqrt( (_context.canvas.width*_context.canvas.width)+(_context.canvas.height*_context.canvas.height) ) / 2,
-                spread: 0,
-                speed: {
-                    x: (Math.random()*2)+2,
-                    y: (Math.random()*2)+2
-                },
-                speedVariation : 1,
-                alpha: 1
-            };
+            properties = extend({}, collectionDefaults, args);
+
 
         return {
-            __testReturnArr : function(){
-                return particleArr;
-            },
-            arr : particleArr,
             properties : properties,
             emitter : emitter,
             emitterFunction : emitterFunction,
-            addParticle : function(p){
+            addParticle : function(){
                 //only add more particles if the collection isn't stopped
                 if(this.properties.stopped === false){
-                    p = p || {};
-                    var _particle = extend({}, particle, particleProps(), p),
-                        minX = 1,
-                        minY = 1,
-                        maxX = emitter.properties.width,
-                        maxY = emitter.properties.height,
-
-                        org = {
-                            x: emitter.properties.origin.x * minX + (Math.random()*(maxX - minX)),
-                            y: emitter.properties.origin.y * minY + (Math.random()*(maxY - minY))
+                    var _particle = extend({}, particle, emitter.particle);
+                    
+                    //this is where we give particles the variation through all of the various spreads
+                    _particle = particleVariation(_particle);
+                    //place particle based on emitter height / width
+                     var org = {
+                            x: emitter.properties.origin.x * minMax(1, emitter.properties.width),
+                            y: emitter.properties.origin.y * minMax(1, emitter.properties.height)
                         };
-
                     extend(_particle.position, org);
-                    /*
-                    this is all test stuff, we'll fold it in later
-                     */
-                    extend(_particle, clusterOverrides);
-                    _particle.direction += Math.random()*_particle.spread;
-                    _particle.speed.x += Math.random()*_particle.speedVariation;
-                    _particle.speed.y += Math.random()*_particle.speedVariation;
-                    if(typeof _particle.color === 'string'){
-                        var colors = hexToRgb(_particle.color);
-                        _particle.color = [colors.r, colors.g, colors.b];
-                    }
-                    _particle.color = _particle.color.map(Math.floor);
+
                     particleArr.push(_particle);
                 }
             },
-            clusterOverrides : clusterOverrides,
             numParticles : function(){
                 return particleArr.length;
             },
@@ -225,14 +230,10 @@ var particles = function(context) {
                 this.emitterFunction();
                 //This is an optimized for loop:
                 // http://jsperf.com/for-loops22/2
-
                     for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
-                    //for(var i = 0; i < this.numParticles(); i++){
-                        //var particle = particleArr[i];
                         //move particle
-
-                        particle.position.x += particle.speed.x * Math.cos(particle.direction);
-                        particle.position.y -= particle.speed.y * Math.sin(particle.direction);
+                        particle.position.x += (particle.speed.x) * Math.cos(particle.direction);
+                        particle.position.y -= (particle.speed.y) * particle.speed.y * Math.sin(particle.direction);
 
                         //get particle distance from origin
                         var diffX = particle.position.x - emitter.properties.origin.x,
@@ -245,6 +246,7 @@ var particles = function(context) {
                         if(particle.alpha <= 0){
                             particleArr.splice(i, 1);
                         }
+
                         //draw particle
                         //todo: shape, sprite
 
@@ -254,7 +256,7 @@ var particles = function(context) {
                         _context.arc(
                             particle.position.x,
                             particle.position.y,
-                            particle.size,
+                            (particle.size.x * particle.size.y /2),
                             0,
                                 Math.PI*2,
                             true
@@ -285,7 +287,7 @@ var particles = function(context) {
         extend({}, props, properties);
         if(typeof p === 'string'){
             //user supplied a string, look for a pre-defined particle
-            type = p;
+            type = particleTypes[p];
             if(typeof particleTypes[p] === 'undefined'){
                 throw new Error(p+" Does not exist");
             }
@@ -318,7 +320,7 @@ var particles = function(context) {
 
         return {
             properties : props,
-            getParticle: type,
+            particle: type,
             behavior: emit,
             setOrigin: function(x,y){
                 this.properties.origin.x = x;
