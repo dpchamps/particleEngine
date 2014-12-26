@@ -27,22 +27,23 @@ gui.addColor(emitter.particle, 'color');
 var particleFolder = gui.addFolder('Particle'),
     collectionFolder = gui.addFolder('Collection'),
     emitterFolder = gui.addFolder('Emitter'),
-    size= particleFolder.addFolder('Size');
+    size= particleFolder.addFolder('Size'),
+    speed = particleFolder.addFolder('Speed');
+
 
  
 size.add(collection.emitter.particle.size, 'x',0, 100);
 size.add(collection.emitter.particle.size, 'y',0, 100);
 size.add(collection.emitter.particle.size, 'spread',0, 100);
+speed.add(collection.emitter.particle.speed, 'x').min(0);
+speed.add(collection.emitter.particle.speed, 'y').min(0);
+speed.add(collection.emitter.particle.speed, 'spread').min(0);
 particleFolder.add(collection.emitter.particle, 'direction',0, 2*Math.PI);
 particleFolder.add(collection.emitter.particle, 'spread',0, 2*Math.PI);
 particleFolder.add(collection.emitter.particle, 'decay').min(0);
 particleFolder.add(collection.emitter.particle, 'alpha',0,1);
 
-speed = particleFolder.addFolder('Speed');
 
-speed.add(collection.emitter.particle.speed, 'x').min(0);
-speed.add(collection.emitter.particle.speed, 'y').min(0);
-speed.add(collection.emitter.particle.speed, 'spread').min(0);
 
 collectionFolder.add(collection.properties, 'max');
 collectionFolder.add(collection.properties, 'density');
@@ -81,8 +82,6 @@ function animationLoop(){
 }
 
 function render(collection){
-
     collection.draw();
-
 }
 /* end demo script */
