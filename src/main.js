@@ -268,7 +268,7 @@ var particles = function(context) {
      An emitter describes the behavior of individual particles
 
      */
-    var emitter = function(p, e, properties){
+    var emitter = function(p, properties){
         var props = {
             origin : {
                 x: 0,
@@ -277,7 +277,10 @@ var particles = function(context) {
             height : 1,
             width:1
         },
-            type, emit;
+        cycle = function(){
+
+        },
+        type;
         //
         extend({}, props, properties);
         if(typeof p === 'string'){
@@ -298,25 +301,9 @@ var particles = function(context) {
             type = p;
         }
 
-        if(typeof e === 'string'){
-            //look for a pre defined emitter
-            emit = e;
-            if(typeof emitterFunctions[e] === 'undefined'){
-                throw new Error(e+" Does not exist");
-            }
-        }
-        else if( typeof e === 'undefined' || e !== 'function'){
-            //without an emitter function, the particle behavior is not defined
-            throw new Error('Undefined emitter function');
-        }else{
-            emit = e;
-        }
-
-
         return {
             properties : props,
             particle: type,
-            behavior: emit,
             setOrigin: function(x,y){
                 this.properties.origin.x = x;
                 this.properties.origin.y = y;
