@@ -35,8 +35,8 @@ var particleFolder = gui.addFolder('Particle'),
 size.add(collection.emitter.particle.size, 'x',0, 100);
 size.add(collection.emitter.particle.size, 'y',0, 100);
 size.add(collection.emitter.particle.size, 'spread',0, 100);
-speed.add(collection.emitter.particle.speed, 'x').min(0);
-speed.add(collection.emitter.particle.speed, 'y').min(0);
+speed.add(collection.emitter.particle.speed, 'x');
+speed.add(collection.emitter.particle.speed, 'y');
 speed.add(collection.emitter.particle.speed, 'spread').min(0);
 particleFolder.add(collection.emitter.particle, 'direction',0, 2*Math.PI);
 particleFolder.add(collection.emitter.particle, 'spread',0, 2*Math.PI);
@@ -47,8 +47,8 @@ particleFolder.add(collection.emitter.particle, 'alpha',0,1);
 
 collectionFolder.add(collection.properties, 'max');
 collectionFolder.add(collection.properties, 'density');
-emitterFolder.add(emitter.properties, "height").min(0).step(5);
-emitterFolder.add(emitter.properties, "width").min(0).step(5);
+emitterFolder.add(emitter.properties, "height").min(1).step(5);
+emitterFolder.add(emitter.properties, "width").min(1).step(5);
 emitterFolder.add(emitter.properties.origin, "x");
 emitterFolder.add(emitter.properties.origin, "y");
 //gui.add(emitter.properties, "width");
@@ -65,8 +65,6 @@ function resizeCanvas(){
     w = canvas.width;
     h = canvas.height;
     collection.emitter.setOrigin(w/2, h/2);
-
-
 }
 
 function animationLoop(){

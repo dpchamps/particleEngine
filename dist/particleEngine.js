@@ -229,8 +229,8 @@ var particles = function(context) {
                     _particle = particleVariation(_particle);
                     //place particle based on emitter height / width
                      var org = {
-                            x: emitter.properties.origin.x * minMax(1, emitter.properties.width),
-                            y: emitter.properties.origin.y * minMax(1, emitter.properties.height)
+                            x: minMax(emitter.properties.origin.x, emitter.properties.origin.x + emitter.properties.width),
+                            y: minMax(emitter.properties.origin.y, emitter.properties.origin.y + emitter.properties.height)
                         };
                     extend(_particle.position, org);
 
@@ -250,11 +250,10 @@ var particles = function(context) {
                         particle.position.y -= (particle.speed.y) * Math.sin(particle.direction);
 
                         //get particle distance from origin
-                        var diffX = particle.position.x - emitter.properties.origin.x,
-                            diffY = particle.position.y - emitter.properties.origin.y,
+                        var diffX = particle.position.x - (emitter.properties.origin.x + emitter.properties.width),
+                            diffY = particle.position.y - (emitter.properties.origin.y + emitter.properties.height),
                             distance = Math.sqrt((diffX*diffX)+(diffY*diffY));
                         //decay particle
-
                         particle.alpha = 1 - (distance / particle.decay);
 
                         if(particle.alpha <= 0){
