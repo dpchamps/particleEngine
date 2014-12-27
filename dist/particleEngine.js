@@ -163,6 +163,9 @@ var particles = function(context) {
         return {
             properties : properties,
             emitter : emitter,
+            exportParticle : function(){
+                return root.JSON.stringify(this.emitter.particle);
+            },
             cycle : function(){
                 var i = 0;
                 if(this.numParticles()<this.properties.max && this.properties.finished === false){

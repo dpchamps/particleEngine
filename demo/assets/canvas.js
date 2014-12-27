@@ -20,6 +20,7 @@ resizeCanvas();
 var gui = new dat.GUI();
 gui.add(collection.properties, 'stopped');
 gui.add(collection.properties, 'cycleOnce');
+gui.add(this, 'exportParticle');
 gui.add(collection, 'reset');
 gui.addColor(emitter.particle, 'color');
 
@@ -57,7 +58,21 @@ renderArray.push(collection);
 animationLoop();
 
 window.addEventListener('resize', resizeCanvas);
+function exportParticle(json){
+    var txtDiv = document.getElementById('particleText'),
+        select = document.getElementById('selectText'),
+        obj = collection.exportParticle();
+    txtDiv.style.display = "block";
 
+    select.value = obj;
+    select.select();
+
+    document.getElementById('close').addEventListener('click', function(e){
+        e.preventDefault();
+        txtDiv.style.display = 'none';
+    });
+
+}
 function resizeCanvas(){
     ctx.canvas.width  = window.innerWidth;
     ctx.canvas.height = window.innerHeight;

@@ -2,17 +2,19 @@
 <html>
   <head>
     <title>particleEngine demo</title>
-    <link rel="stylesheet" href="./assets/main.css" />
-    <style>
-      /* begin demo embedded styles */
-
-      /* end demo embedded styles */
-    </style>
+    <link rel="stylesheet" href="assets/main.css" />
   </head>
   <body>
     <canvas id="canvas"></canvas>
+    <div id="particleText">
+        <form>
+            <textarea id="selectText"></textarea>
+            <button id="close">Close Window</button>
+        </form>
+    </div>
     <script src="./../dat-gui/build/dat.gui.js"></script>
     <script src="./../dist/particleEngine.js"></script>
     <script src="assets/canvas.js"></script>
+
   </body>
 </html>

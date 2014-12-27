@@ -2,7 +2,6 @@
 *
 * Notes, in the form of a todo checklist
 *
-* todo: using dat GUI, make an 'exportParticle' for ease of creating particles and emitters... a sort of "particle creator" perhaps... yes...
 *
 * */
 
@@ -158,6 +157,9 @@ var particles = function(context) {
         return {
             properties : properties,
             emitter : emitter,
+            exportParticle : function(){
+                return root.JSON.stringify(this.emitter.particle);
+            },
             cycle : function(){
                 var i = 0;
                 if(this.numParticles()<this.properties.max && this.properties.finished === false){
@@ -294,7 +296,7 @@ var particles = function(context) {
 };
 
 // Version.
-particles.VERSION = '0.1.0';
+particles.VERSION = '0.2.0';
 
 // Export to the root, which is probably `window`.
 root.particles = particles;
