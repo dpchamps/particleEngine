@@ -10,7 +10,8 @@ var canvas = document.getElementById("canvas"),
     h=0,
     renderArray = [],
     animFrame = null,
-    engine = particles(ctx);
+    engine = particles(ctx),
+    followMouse = true;
 
 var emitter = engine.emitter('flame');
 var collection = engine.collection(emitter);
@@ -21,6 +22,7 @@ resizeCanvas();
 var gui = new dat.GUI();
 gui.add(collection.properties, 'stopped');
 gui.add(collection.properties, 'cycleOnce').listen();
+gui.add(window, 'followMouse').listen();
 gui.add(window, 'exportParticle');
 gui.add(collection, 'reset');
 gui.addColor(emitter.particle, 'color').listen();
@@ -119,7 +121,31 @@ function reset(){
 /*
 listeners for UI
  */
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
 
+canvas.addEventListener('mousemove', function(evt) {
+    if(followMouse){
+        var mousePos = getMousePos(canvas, evt);
+        collection.emitter.setOrigin(mousePos.x, mousePos.y);
+    }
+
+}, false);
+
+$('.help').on('click', function(e){
+    $("#modal").show();
+    $('#help').show();
+
+});
+$('#modal').on('click', function(e){
+    $("#modal").hide();
+    $('#help').hide();
+});
 $('.button-control').on('click', function(e){
     if($(this).hasClass('button-select')){
         console.log('already on');

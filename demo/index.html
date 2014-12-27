@@ -14,12 +14,29 @@
         <div class="button-control" data-particle="smoke">Smoke</div>
         <div class="button-control" data-particle="explode">Explode</div>
         <div class="button-control" data-particle="snow">Snow</div>
+        <div class="button-control help">?</div>
     </div>
+    <div id="modal"></div>
     <div id="particleText">
         <form>
             <textarea id="selectText"></textarea>
             <button id="close">Close Window</button>
         </form>
+    </div>
+    <div id="help">
+        <h2>This is a particle engine / editor. </h2>
+        <p>It's still very much in the works, you can report any bugs here:</p>
+        <p><a href="https://github.com/gasolinewaltz/particleEngine">https://github.com/gasolinewaltz/particleEngine</a></p>
+        <p>The dat.gui editor is interfacing with the engine and provides access to all of the editable variables.</p>
+        <ul>
+            <li><b>stopped</b> - the flag that controls whether the emitter is adding particles to the collection</li>
+            <li><b>cycleOnce</b> - when set to true, the emitter will only cycle once</li>
+            <li><b>exportParticle</b> - brings up some JSON that describes a particle. As of now, you still have to set
+                emitter position / collection max / density programmatically. But you can still edit them with dat GUI.</li>
+            <li><b>reset</b> - resets the cycle and clears the collection</li>
+        </ul>
+        <p>The rest you'll just have to play around with :) </p>
+        <h3>click on the modal to exit this screen.</h3>
     </div>
     <script src="./../bower_components/jquery/dist/jquery.min.js"></script>
     <script src="./../dat-gui/build/dat.gui.js"></script>
