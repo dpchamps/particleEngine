@@ -20,7 +20,7 @@ resizeCanvas();
 
 var gui = new dat.GUI();
 gui.add(collection.properties, 'stopped');
-gui.add(collection.properties, 'cycleOnce');
+gui.add(collection.properties, 'cycleOnce').listen();
 gui.add(window, 'exportParticle');
 gui.add(collection, 'reset');
 gui.addColor(emitter.particle, 'color').listen();
@@ -100,7 +100,6 @@ function animationLoop(){
         ctx.clearRect(0,0,w,h);
         for(var i = 0; i < renderArray.length; i++){
             render(renderArray[i]);
-
         }
 
     }
@@ -109,7 +108,14 @@ function animationLoop(){
 function render(collection){
     collection.draw();
 }
-
+function reset(){
+    resizeCanvas();
+    collection.emitter.properties.width = 1;
+    collection.properties.max = 100;
+    collection.properties.density = 1;
+    collection.properties.cycleOnce = false;
+    collection.reset();
+}
 /*
 listeners for UI
  */
@@ -123,6 +129,26 @@ $('.button-control').on('click', function(e){
         });
         $(this).addClass('button-select');
         collection.emitter.setParticle($(this).data('particle'));
+        switch( $(this).data('particle') ){
+            case 'explode':
+                reset();
+                collection.properties.max = 30;
+                collection.properties.density = 20;
+                collection.properties.cycleOnce = true;
+
+                //reset();
+                resizeCanvas();
+                break;
+            case 'snow' :
+                reset();
+                collection.emitter.setOrigin((ctx.canvas.width/2)-125, -40);
+                collection.properties.max = 280;
+                collection.properties.density = 2;
+                collection.emitter.properties.width = 125;
+                break;
+            default :
+                reset();
+        }
     }
 
 });

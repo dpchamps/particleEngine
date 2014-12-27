@@ -76,28 +76,16 @@ var particles = function(context) {
     var particleTypes = {
 
         flame :
-        {"direction":1.8016922886691076,"spread":1.1780295733605703,"color":[255,32.5,58.676470588235404],"speed":{"x":1,"y":1,"spread":2},"alpha":1,"size":{"x":2.5,"y":2,"spread":2},"decay":50},
+            {"weight":0,"direction":1.8016922886691076,"spread":1.1780295733605703,"position":{"x":0,"y":0},"speed":{"x":0.6,"y":0.6,"spread":1.6},"gravity":0,"gravityCount":0,"color":[250,117.64705882352948,0],"size":{"height":0,"width":0,"spread":2,"x":2.5,"y":2},"sprite":false,"shape":false,"alpha":1,"decay":48},
         water :
-        {"weight":0,"direction":0,"spread":0,"position":{"x":0,"y":0},"speed":{"x":0.5,"y":0.14,"spread":2},"gravity":11,"gravityCount":0,"color":[43.627450980392155,138.32468281430226,222.5],"size":{"x":8.035874439461884,"y":2.244826376709926,"spread":3.4439461883408073},"sprite":false,"shape":false,"alpha":1,"decay":388},
-        smoke : {"weight":0,"direction":1.1780295733605703,"spread":1.8016922886691076,"position":{"x":0,"y":0},"speed":{"x":0.79,"y":1.19,"spread":2},"gravity":0,"gravityCount":0,"color":[23.455882352941163,25.596885813148777,27.499999999999986],"size":{"x":1,"y":1,"spread":3.4439461883408073},"sprite":false,"shape":false,"alpha":1,"decay":80},
-        explode: {"weight":0,"direction":0,"spread":6.283185307179586,"position":{"x":0,"y":0},"speed":{"x":5,"y":3,"spread":3},"gravity":1,"gravityCount":0,"color":[255,65,65],"size":{"x":4,"y":1,"spread":5},"sprite":false,"shape":false,"alpha":1,"decay":228},
-        test : {
-                direction: (7*Math.PI)/4,
-                spread: (5*Math.PI)/4,
-                color: [0,0,0],
-                speed: {
-                    x: 0.5,
-                    y: 0.5,
-                    spread: 2
-                },
-                alpha: 1,
-                size: {
-                    x: 1,
-                    y: 1,
-                    spread: 4
-                },
-                decay: Math.sqrt( (_context.canvas.width*_context.canvas.width)+(_context.canvas.height*_context.canvas.height) ) / 2
-        }
+            {"weight":0,"direction":2.286763289464637,"spread":2.286763289464637,"position":{"x":0,"y":0},"speed":{"x":2.4,"y":2.8,"spread":2},"gravity":9,"gravityCount":0,"color":[43.627450980392155,138.32468281430226,222.5],"size":{"height":0,"width":0,"spread":3.4439461883408073,"x":8.035874439461884,"y":2.244826376709926},"sprite":false,"shape":false,"alpha":1,"decay":388},
+        smoke :
+            {"weight":0,"direction":1.1780295733605703,"spread":1.8016922886691076,"position":{"x":0,"y":0},"speed":{"x":0.79,"y":0.6,"spread":0.4},"gravity":0,"gravityCount":0,"color":[23.455882352941163,25.596885813148777,27.499999999999986],"size":{"height":0,"width":0,"spread":3.3672395650648896,"x":2.244826376709926,"y":1.122413188354963},"sprite":false,"shape":false,"alpha":0.24263312079958643,"decay":295},
+        explode:
+            {"weight":0,"direction":0,"spread":6.283185307179586,"position":{"x":0,"y":0},"speed":{"x":5,"y":3,"spread":3},"gravity":1,"gravityCount":0,"color":[255,65,65],"size":{"x":4,"y":1,"spread":5},"sprite":false,"shape":false,"alpha":1,"decay":228},
+        snow:
+            {"weight":0,"direction":3.949863863620736,"spread":5.474372723263827,"position":{"x":0,"y":0},"speed":{"x":0.6,"y":0.6,"spread":0.4},"gravity":0,"gravityCount":0,"color":"#ffffff","size":{"height":0,"width":0,"spread":2,"x":2.5,"y":2},"sprite":false,"shape":false,"alpha":1,"decay":449},
+
     };
 
     /*
@@ -136,6 +124,7 @@ var particles = function(context) {
         max: 100 ,
         density: 1,
         cycleOnce: false,
+        cycleCount: 0,
         finished : false,
         stopped: false
     };
@@ -163,8 +152,11 @@ var particles = function(context) {
                 var i = 0;
                 if(this.numParticles()<this.properties.max && this.properties.finished === false){
                     while(i++ < this.properties.density ){
+                        if(this.properties.cycleOnce){
+                            this.properties.cycleCount++;
+                        }
                         this.addParticle();
-                        if(this.numParticles() >= this.properties.max && this.properties.cycleOnce){
+                        if(this.properties.cycleCount >= this.properties.max && this.properties.cycleOnce){
                             this.properties.finished = true;
                         }
                     }
@@ -174,6 +166,7 @@ var particles = function(context) {
                 particleArr = [];
                 _context.clearRect(0,0,_context.canvas.width, _context.canvas.height);
                 this.properties.finished = false;
+                this.properties.cycleCount = 0;
             },
             addParticle : function(){
                 //only add more particles if the collection isn't stopped
@@ -203,7 +196,7 @@ var particles = function(context) {
                         particle.position.y -= (particle.speed.y) * Math.sin(particle.direction);
                         //gravity
                         if(particle.gravityCount < particle.gravity){
-                            particle.gravityCount += particle.gravity*0.25;
+                            particle.gravityCount += particle.gravity*0.025;
                         }
                         particle.position.y += particle.gravityCount;
                         //get particle distance from origin
@@ -211,16 +204,16 @@ var particles = function(context) {
                             diffY = particle.position.y - (emitter.properties.origin.y + emitter.properties.height),
                             distance = Math.sqrt((diffX*diffX)+(diffY*diffY));
                         //decay particle
-                        particle.alpha = 1 - (distance / particle.decay);
+                        var trueAlpha = particle.alpha - (distance / particle.decay);
 
-                        if(particle.alpha <= 0){
+                        if(trueAlpha <= 0){
                             particleArr.splice(i, 1);
                         }
 
                         //draw particle
                         //todo: shape, sprite
 
-                        _context.fillStyle = "rgba("+particle.color.join()+","+particle.alpha +")";
+                        _context.fillStyle = "rgba("+particle.color.join()+","+trueAlpha +")";
 
                         _context.beginPath();
                         _context.arc(
