@@ -76,7 +76,7 @@ var particles = function(context) {
     var particleTypes = {
 
         flame :
-            {"weight":0,"direction":1.8016922886691076,"spread":1.1780295733605703,"position":{"x":0,"y":0},"speed":{"x":0.6,"y":0.6,"spread":1.6},"gravity":0,"gravityCount":0,"color":[250,117.64705882352948,0],"size":{"height":0,"width":0,"spread":2,"x":2.5,"y":2},"sprite":false,"shape":false,"alpha":1,"decay":48},
+        {"weight":0,"direction":1.8016922886691076,"spread":1.1780295733605703,"position":{"x":0,"y":0},"speed":{"x":0.6,"y":0.6,"spread":1.6},"gravity":0,"gravityCount":0,"color":[250,117.64705882352948,0],"size":{"height":0,"width":0,"spread":3.3672395650648896,"x":2.1,"y":2},"sprite":false,"shape":false,"alpha":1,"decay":73},
         water :
             {"weight":0,"direction":2.286763289464637,"spread":2.286763289464637,"position":{"x":0,"y":0},"speed":{"x":2.4,"y":2.8,"spread":2},"gravity":9,"gravityCount":0,"color":[43.627450980392155,138.32468281430226,222.5],"size":{"height":0,"width":0,"spread":3.4439461883408073,"x":8.035874439461884,"y":2.244826376709926},"sprite":false,"shape":false,"alpha":1,"decay":388},
         smoke :
