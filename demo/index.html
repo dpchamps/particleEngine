@@ -5,13 +5,22 @@
     <link rel="stylesheet" href="assets/main.css" />
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div id="canvas-column">
+        <canvas id="canvas"></canvas>
+    </div>
+    <div class="control-column">
+        <div class="button-control" data-particle="flame">Flame</div>
+        <div class="button-control" data-particle="water">Water</div>
+        <div class="button-control" data-particle="smoke">Smoke</div>
+        <div class="button-control" data-particle="explode">Explode</div>
+    </div>
     <div id="particleText">
         <form>
             <textarea id="selectText"></textarea>
             <button id="close">Close Window</button>
         </form>
     </div>
+    <script src="./../bower_components/jquery/dist/jquery.min.js"></script>
     <script src="./../dat-gui/build/dat.gui.js"></script>
     <script src="./../dist/particleEngine.js"></script>
     <script src="assets/canvas.js"></script>

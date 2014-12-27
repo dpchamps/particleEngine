@@ -7,7 +7,6 @@
 *
 * Notes, in the form of a todo checklist
 *
-* todo: using dat GUI, make an 'exportParticle' for ease of creating particles and emitters... a sort of "particle creator" perhaps... yes...
 *
 * */
 
@@ -28,7 +27,7 @@ var particles = function(context) {
             for(var key in args[i]){
                 if(args[i].hasOwnProperty(key)){
                     if(typeof args[i][key] === 'object' && (args[i][key] instanceof Array) === false){
-                        dest[key] = {};
+                        dest[key] = dest[key] || {};
                         extend(dest[key], args[i][key]);
                     }else{
                         dest[key] = args[i][key];
@@ -75,21 +74,13 @@ var particles = function(context) {
 
      */
     var particleTypes = {
-        snow : {
 
-        },
-        rain : {
-
-        },
-        fire : {
-
-        },
-        ice : {
-
-        },
-        smoke : {
-
-        },
+        flame :
+        {"direction":1.8016922886691076,"spread":1.1780295733605703,"color":[255,32.5,58.676470588235404],"speed":{"x":1,"y":1,"spread":2},"alpha":1,"size":{"x":2.5,"y":2,"spread":2},"decay":50},
+        water :
+        {"weight":0,"direction":0,"spread":0,"position":{"x":0,"y":0},"speed":{"x":0.5,"y":0.14,"spread":2},"gravity":11,"gravityCount":0,"color":[43.627450980392155,138.32468281430226,222.5],"size":{"x":8.035874439461884,"y":2.244826376709926,"spread":3.4439461883408073},"sprite":false,"shape":false,"alpha":1,"decay":388},
+        smoke : {"weight":0,"direction":1.1780295733605703,"spread":1.8016922886691076,"position":{"x":0,"y":0},"speed":{"x":0.79,"y":1.19,"spread":2},"gravity":0,"gravityCount":0,"color":[23.455882352941163,25.596885813148777,27.499999999999986],"size":{"x":1,"y":1,"spread":3.4439461883408073},"sprite":false,"shape":false,"alpha":1,"decay":80},
+        explode: {"weight":0,"direction":0,"spread":6.283185307179586,"position":{"x":0,"y":0},"speed":{"x":5,"y":3,"spread":3},"gravity":1,"gravityCount":0,"color":[255,65,65],"size":{"x":4,"y":1,"spread":5},"sprite":false,"shape":false,"alpha":1,"decay":228},
         test : {
                 direction: (7*Math.PI)/4,
                 spread: (5*Math.PI)/4,
@@ -127,6 +118,8 @@ var particles = function(context) {
             y: 0,
             spread: 0
         },
+        gravity : 0,
+        gravityCount:0,
         color : [],
         size: {
             height: 0,
@@ -208,7 +201,11 @@ var particles = function(context) {
                         //move particle
                         particle.position.x += (particle.speed.x) * Math.cos(particle.direction);
                         particle.position.y -= (particle.speed.y) * Math.sin(particle.direction);
-
+                        //gravity
+                        if(particle.gravityCount < particle.gravity){
+                            particle.gravityCount += particle.gravity*0.25;
+                        }
+                        particle.position.y += particle.gravityCount;
                         //get particle distance from origin
                         var diffX = particle.position.x - (emitter.properties.origin.x + emitter.properties.width),
                             diffY = particle.position.y - (emitter.properties.origin.y + emitter.properties.height),
@@ -246,7 +243,7 @@ var particles = function(context) {
      An emitter describes the behavior of individual particles
 
      */
-    var emitter = function(p, properties){
+    var emitter = function(_particle, properties){
         var props = {
             origin : {
                 x: 0,
@@ -254,37 +251,43 @@ var particles = function(context) {
             },
             height : 1,
             width:1
-        },
-        cycle = function(){
-
-        },
-        type;
+        }, type, _p;
         //
         extend({}, props, properties);
-        if(typeof p === 'string'){
-            //user supplied a string, look for a pre-defined particle
-            type = particleTypes[p];
-            if(typeof particleTypes[p] === 'undefined'){
-                throw new Error(p+" Does not exist");
+
+        var setParticle = function(p){
+            if(typeof p === 'string'){
+                //user supplied a string, look for a pre-defined particle
+                type = particleTypes[p];
+                if(typeof particleTypes[p] === 'undefined'){
+                    throw new Error(p+" Does not exist");
+                }
             }
-        }
-        else if(typeof p === 'undefined'){
-            //pointless to instantiate further, the default particle object has no usable properties
-            throw new Error("Undefined particle type");
-        }
-        else{
-            //For now we'll assume that the user supplied an object, todo: more strict type checking
-            //we extend the user supplied object into the particle object to at least ensure that all the defaults are there todo: validate this particle
-            //we extend this object into a new object to so that the defaults aren't altered and we're dealing with a fresh object and not a reference.
-            type = p;
-        }
+            else if(typeof p === 'undefined'){
+                //pointless to instantiate further, the default particle object has no usable properties
+                throw new Error("Undefined particle type");
+            }
+            else{
+                //For now we'll assume that the user supplied an object, todo: more strict type checking
+                //we extend the user supplied object into the particle object to at least ensure that all the defaults are there todo: validate this particle
+                //we extend this object into a new object to so that the defaults aren't altered and we're dealing with a fresh object and not a reference.
+                type = p;
+            }
+            _p = extend({}, particle, type);
+        };
+        setParticle(_particle);
+
 
         return {
             properties : props,
-            particle: type,
+            particle: _p,
             setOrigin: function(x,y){
                 this.properties.origin.x = x;
                 this.properties.origin.y = y;
+            },
+            setParticle : function(p){
+                setParticle(p);
+                extend(this.particle,_p);
             }
         };
     };
@@ -302,7 +305,7 @@ var particles = function(context) {
 };
 
 // Version.
-particles.VERSION = '0.1.0';
+particles.VERSION = '0.2.0';
 
 // Export to the root, which is probably `window`.
 root.particles = particles;

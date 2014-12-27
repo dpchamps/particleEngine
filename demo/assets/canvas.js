@@ -4,6 +4,7 @@
 /* begin demo script */
 
 var canvas = document.getElementById("canvas"),
+    canvasCol = document.getElementById('canvas-column'),
     ctx = canvas.getContext('2d'),
     w=0,
     h=0,
@@ -11,18 +12,18 @@ var canvas = document.getElementById("canvas"),
     animFrame = null,
     engine = particles(ctx);
 
-var emitter = engine.emitter('test','test');
+var emitter = engine.emitter('flame');
 var collection = engine.collection(emitter);
 
 
-
 resizeCanvas();
+
 var gui = new dat.GUI();
 gui.add(collection.properties, 'stopped');
 gui.add(collection.properties, 'cycleOnce');
-gui.add(this, 'exportParticle');
+gui.add(window, 'exportParticle');
 gui.add(collection, 'reset');
-gui.addColor(emitter.particle, 'color');
+gui.addColor(emitter.particle, 'color').listen();
 
 
 var particleFolder = gui.addFolder('Particle'),
@@ -32,32 +33,43 @@ var particleFolder = gui.addFolder('Particle'),
     speed = particleFolder.addFolder('Speed');
 
 
- 
-size.add(collection.emitter.particle.size, 'x',0, 100);
-size.add(collection.emitter.particle.size, 'y',0, 100);
-size.add(collection.emitter.particle.size, 'spread',0, 100);
-speed.add(collection.emitter.particle.speed, 'x');
-speed.add(collection.emitter.particle.speed, 'y');
-speed.add(collection.emitter.particle.speed, 'spread').min(0);
-particleFolder.add(collection.emitter.particle, 'direction',0, 2*Math.PI);
-particleFolder.add(collection.emitter.particle, 'spread',0, 2*Math.PI);
-particleFolder.add(collection.emitter.particle, 'decay').min(0);
-particleFolder.add(collection.emitter.particle, 'alpha',0,1);
+
+size.add(collection.emitter.particle.size, 'x',0, 100).listen();
+size.add(collection.emitter.particle.size, 'y',0, 100).listen();
+size.add(collection.emitter.particle.size, 'spread',0, 100).listen();
+speed.add(collection.emitter.particle.speed, 'x').listen();
+speed.add(collection.emitter.particle.speed, 'y').listen();
+speed.add(collection.emitter.particle.speed, 'spread').min(0).listen();
+particleFolder.add(collection.emitter.particle, 'gravity',0).min(0).listen();
+particleFolder.add(collection.emitter.particle, 'direction',0, 2*Math.PI).listen()
+    .onChange(function(value){
+        collection.emitter.particle.spread = value;
+    });
+particleFolder.add(collection.emitter.particle, 'spread',0, 2*Math.PI).listen();
+particleFolder.add(collection.emitter.particle, 'decay').min(0).listen();
+particleFolder.add(collection.emitter.particle, 'alpha',0,1).listen();
 
 
 
-collectionFolder.add(collection.properties, 'max');
-collectionFolder.add(collection.properties, 'density');
-emitterFolder.add(emitter.properties, "height").min(1).step(5);
-emitterFolder.add(emitter.properties, "width").min(1).step(5);
-emitterFolder.add(emitter.properties.origin, "x");
-emitterFolder.add(emitter.properties.origin, "y");
+collectionFolder.add(collection.properties, 'max').listen();
+collectionFolder.add(collection.properties, 'density').listen();
+emitterFolder.add(emitter.properties, "height").min(1).step(5).listen();
+emitterFolder.add(emitter.properties, "width").min(1).step(5).listen();
+emitterFolder.add(emitter.properties.origin, "x").listen();
+emitterFolder.add(emitter.properties.origin, "y").listen();
 //gui.add(emitter.properties, "width");
 
 renderArray.push(collection);
 animationLoop();
 
 window.addEventListener('resize', resizeCanvas);
+function updateDatGui(){
+    //we got to do this by finger, unfortunately
+
+    //speed
+    size.__controllers[0].setValue(collection.emitter.particle.speed.x);
+    size.__controllers[1].setValue(collection.emitter.particle.speed.x);
+}
 function exportParticle(json){
     var txtDiv = document.getElementById('particleText'),
         select = document.getElementById('selectText'),
@@ -74,11 +86,11 @@ function exportParticle(json){
 
 }
 function resizeCanvas(){
-    ctx.canvas.width  = window.innerWidth;
-    ctx.canvas.height = window.innerHeight;
+    ctx.canvas.width  = canvasCol.clientWidth;
+    ctx.canvas.height = canvasCol.clientHeight;
     engine.updateContext(ctx);
-    w = canvas.width;
-    h = canvas.height;
+    w = ctx.canvas.width;
+    h = ctx.canvas.height;
     collection.emitter.setOrigin(w/2, h/2);
 }
 
@@ -97,4 +109,21 @@ function animationLoop(){
 function render(collection){
     collection.draw();
 }
+
+/*
+listeners for UI
+ */
+
+$('.button-control').on('click', function(e){
+    if($(this).hasClass('button-select')){
+        console.log('already on');
+    }else{
+        $('.button-control').each(function(){
+            $(this).removeClass('button-select');
+        });
+        $(this).addClass('button-select');
+        collection.emitter.setParticle($(this).data('particle'));
+    }
+
+});
 /* end demo script */
