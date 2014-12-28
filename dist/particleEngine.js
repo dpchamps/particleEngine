@@ -6,16 +6,17 @@
 /* particleEngine main
 *
 * Notes, in the form of a todo checklist
-*
+*   todo add sprite / shape support
 *
 * */
 
 var document = root.document || {};
 
 var particles = function(context) {
-    if(typeof context === 'undefined'){
+    if(typeof context === 'undefined'  || !(context instanceof root.CanvasRenderingContext2D)){
         throw new Error('particles must be defined with a canvas context');
     }
+
     //internal context
     var _context = context;
     /*
@@ -94,7 +95,6 @@ var particles = function(context) {
 
      */
     var particle = {
-        weight: 0, //not implemented
         direction : 0,
         spread: 0,
         position : {
