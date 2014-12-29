@@ -139,7 +139,7 @@ var particles = function(context) {
 
         return {
             properties : properties,
-            emitter : emitter,
+            emitter : extend({},emitter),
             exportParticle : function(){
                 return root.JSON.stringify(this.emitter.particle);
             },
