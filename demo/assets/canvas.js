@@ -15,7 +15,7 @@ var canvas = document.getElementById("canvas"),
 
 var emitter = engine.emitter('flame');
 var collection = engine.collection(emitter);
-
+var _max = collection.getProp('max');
 
 resizeCanvas();
 
@@ -25,7 +25,7 @@ gui.add(collection.properties, 'cycleOnce').listen();
 gui.add(window, 'followMouse').listen();
 gui.add(window, 'exportParticle');
 gui.add(collection, 'reset');
-gui.addColor(emitter.particle, 'color').listen();
+gui.addColor(collection.emitter.particle, 'color').listen();
 
 
 var particleFolder = gui.addFolder('Particle'),
@@ -53,25 +53,25 @@ particleFolder.add(collection.emitter.particle, 'alpha',0,1).listen();
 
 
 
-collectionFolder.add(collection.properties, 'max').listen();
+collectionFolder.add(window, '_max').listen()
+    .onChange(function(value){
+        collection.setProp('max', value);
+    })
+    .onFinishChange(function(value){
+
+    });
 collectionFolder.add(collection.properties, 'density').listen();
-emitterFolder.add(emitter.properties, "height").min(1).step(5).listen();
-emitterFolder.add(emitter.properties, "width").min(1).step(5).listen();
-emitterFolder.add(emitter.properties.origin, "x").listen();
-emitterFolder.add(emitter.properties.origin, "y").listen();
+emitterFolder.add(collection.emitter.properties, "height").min(1).step(5).listen();
+emitterFolder.add(collection.emitter.properties, "width").min(1).step(5).listen();
+emitterFolder.add(collection.emitter.properties.origin, "x").listen();
+emitterFolder.add(collection.emitter.properties.origin, "y").listen();
 //gui.add(emitter.properties, "width");
 
 renderArray.push(collection);
 animationLoop();
 
 window.addEventListener('resize', resizeCanvas);
-function updateDatGui(){
-    //we got to do this by finger, unfortunately
 
-    //speed
-    size.__controllers[0].setValue(collection.emitter.particle.speed.x);
-    size.__controllers[1].setValue(collection.emitter.particle.speed.x);
-}
 function exportParticle(json){
     var txtDiv = document.getElementById('particleText'),
         select = document.getElementById('selectText'),

@@ -144,18 +144,18 @@ var particles = function(context) {
                 return root.JSON.stringify(this.emitter.particle);
             },
             cycle : function(){
-                var i = 0;
-                if(this.numParticles()<this.properties.max && this.properties.finished === false){
-                    while(i++ < this.properties.density ){
-                        if(this.properties.cycleOnce){
-                            this.properties.cycleCount++;
-                        }
-                        this.addParticle();
-                        if(this.properties.cycleCount >= this.properties.max && this.properties.cycleOnce){
-                            this.properties.finished = true;
+                    var i = 0;
+                    if( (this.numParticles()<this.properties.max) && !this.properties.finished ){
+                        while(i++ < this.properties.density ){
+                            if(this.properties.cycleOnce){
+                                this.properties.cycleCount++;
+                            }
+                            this.addParticle();
+                            if(this.properties.cycleCount >= this.properties.max && this.properties.cycleOnce){
+                                this.properties.finished = true;
+                            }
                         }
                     }
-                }
             },
             reset : function(){
                 particleArr = [];
@@ -164,27 +164,32 @@ var particles = function(context) {
                 this.properties.cycleCount = 0;
             },
             addParticle : function(){
-                //only add more particles if the collection isn't stopped
-                if(this.properties.stopped === false){
-                    var _particle = extend({}, particle, emitter.particle);
-                    //this is where we give particles the variation through all of the various spreads
-                    _particle = particleVariation(_particle);
-                    //place particle based on emitter height / width
-                     var org = {
-                            x: minMax(emitter.properties.origin.x, emitter.properties.origin.x + emitter.properties.width),
-                            y: minMax(emitter.properties.origin.y, emitter.properties.origin.y + emitter.properties.height)
-                        };
-                    extend(_particle.position, org);
 
-                    particleArr.push(_particle);
-                }
+                var _particle = extend({}, particle, this.emitter.particle);
+                //this is where we give particles the variation through all of the various spreads
+                _particle = particleVariation(_particle);
+                //place particle based on emitter height / width
+                 var org = {
+                        x: minMax(this.emitter.properties.origin.x, this.emitter.properties.origin.x + this.emitter.properties.width),
+                        y: minMax(this.emitter.properties.origin.y, this.emitter.properties.origin.y + this.emitter.properties.height)
+                    };
+                extend(_particle.position, org);
+
+                particleArr.push(_particle);
+
             },
             numParticles : function(){
                 return particleArr.length;
             },
             draw : function(){
-                this.cycle();
-                // http://jsperf.com/for-loops22/2
+                /*
+                This is the top level loop inside the library
+                    requestAnimationFrame()->draw()->cycle()->->addParticle()
+                by checking for stopped here, we eliminate i iterations every call by requestAnimationFrame (16ms!)
+                 */
+                if(!this.properties.stopped){
+                    this.cycle();
+                    // http://jsperf.com/for-loops22/2
                     for(var i = 0, j = particleArr.length, particle; particle = particleArr[i]; i++){//jshint ignore:line
                         //move particle
                         particle.position.x += (particle.speed.x) * Math.cos(particle.direction);
@@ -195,8 +200,8 @@ var particles = function(context) {
                         }
                         particle.position.y += particle.gravityCount;
                         //get particle distance from origin
-                        var diffX = particle.position.x - (emitter.properties.origin.x + emitter.properties.width),
-                            diffY = particle.position.y - (emitter.properties.origin.y + emitter.properties.height),
+                        var diffX = particle.position.x - (this.emitter.properties.origin.x + this.emitter.properties.width),
+                            diffY = particle.position.y - (this.emitter.properties.origin.y + this.emitter.properties.height),
                             distance = Math.sqrt((diffX*diffX)+(diffY*diffY));
                         //decay particle
                         var trueAlpha = particle.alpha - (distance / particle.decay);
@@ -222,6 +227,33 @@ var particles = function(context) {
                         _context.closePath();
                         _context.fill();
                     }
+                }
+
+            },
+            setProp : function(prop, val){
+                var _prop = this.properties[prop];
+                if(typeof _prop === 'undefined'){
+                    throw new Error('could not find collection property: '+prop);
+                }else{
+                    switch(prop){
+                        case 'max' :
+                            var old = this.properties.max;
+                            this.properties.max = val;
+                            console.log(old, this.properties.max, val);
+                            if(old < this.properties.max){
+                                this.properties.finished = false;
+                            }
+                            else if(old > this.properties.max){
+                                this.properties.finished = true;
+                            }
+                            break;
+                        default :
+                            _prop = val;
+                    }
+                }
+            },
+            getProp : function(prop){
+                return this.properties[prop];
             }
         };
     };
