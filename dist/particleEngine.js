@@ -3,15 +3,18 @@
   "use strict";
 
 
-/* particleEngine main
-*
-* Notes, in the form of a todo checklist
-*   todo add sprite / shape support
-*
-* */
+
 
 var document = root.document || {};
-
+/**
+ *  The global function that initializes the engine.
+ *  @constructor particles
+ *  @param {CanvasRenderingContext2D} context - The canvas context that particles will be rendered to.
+ *  @example
+ *  //initialize the particle engine to begin rendering particles
+ *  var context = document.getElementById('canvas').getContext('2d'),
+ *      engine = particles(ctx)
+ */
 var particles = function(context) {
     if(typeof context === 'undefined'  || !(context instanceof root.CanvasRenderingContext2D)){
         throw new Error('particles must be defined with a canvas context');
@@ -69,10 +72,25 @@ var particles = function(context) {
 
         return particle;
     }
-    /*
 
-     Pre-defined particle Types
 
+    /**
+     *
+     * @object particleType
+     * @memberof! particles
+     *
+     * @property particleTypes.flame
+     * @property particleTypes.water
+     * @property particleTypes.smoke
+     * @property particleTypes.explode
+     * @property particleTypes.snow
+     *
+     * @description
+     * Predefined particle types
+     * These types are accessible from the emitter method.
+     * @example
+     * //create a new emitter with a pre defined particle type
+     * var emit = engine.emitter('snow');
      */
     var particleTypes = {
 
@@ -89,11 +107,42 @@ var particles = function(context) {
 
     };
 
-    /*
-
-     Describes properties of a particle, a private variable. Both the emitter and collection functions interact with it.
-
+    /**
+     * @object particle
+     * @memberof! particles
+     * @description
+     * The base particle class.
+     *
+     * The full list of properties that the engine expects a particle to have.
+     *
+     * Because this is a base object, all user supplied (and pre-defined) particle types are extended over this into a new object
+     * in the fashion of:
+     *
+     *      extend({}, particle, userDefinedObject)
+     *
+     * where extend automatically preforms a deep copy of all objects.
+     *
+     * @property {number} direction                 -Direction particle is facing in radians. (minimum to spread)
+     * @property {number} spread                    -The max spread of direction. where a particle is given a direction randomly between particle.direction and particle.spread
+     * @property {object} position                  -An object containg the particles coordinates
+     *  @property {number} position.x                -The x coordinate of the particle
+     *  @property {number} position.y                -The y coordinate of the particle
+     * @property {object} speed                     -An object containing speeds for both axis and a spread modifier.
+     * @property {number} speed.x                   -The speed the particle moves on the x-axis
+     * @property {number} speed.y                   -The speed the particle moves on the y-axis
+     * @property {number} speed.spread              -Math.random() * particle.speed..spread, applied to speed.x & speed.y
+     * @property {number} gravity                   -The maximum amount of speed to apply to the y-axis
+     * @property {array} color                      -[r,g,b] value.
+     * @property {object} size                      -An object contained height, width and spread properties for the size
+     * @property {number} x                         -The width of the particle
+     * @property {number} y                         -The height of the particle
+     * @property {number} spread                    -Math.random()*particle.size.spread applied to both x & y
+     * @property {string} aprite                    -Not yet implemented
+     * @property {string} shape                     -Not yet implemented
+     * @property {number} alpha                     -The starting opacity of a particle
+     * @property {number} decay                     -The lifetime of the particle
      */
+
     var particle = {
         direction : 0,
         spread: 0,
