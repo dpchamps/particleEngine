@@ -183,6 +183,9 @@ var particles = function(context) {
                 particleArr.push(_particle);
 
             },
+            getParticle : function(i){
+                return particleArr[i];
+            },
             numParticles : function(){
                 return particleArr.length;
             },
@@ -236,24 +239,25 @@ var particles = function(context) {
 
             },
             setProp : function(prop, val){
-                var _prop = this.properties[prop];
-                if(typeof _prop === 'undefined'){
+
+                if(typeof this.properties[prop] === 'undefined'){
                     throw new Error('could not find collection property: '+prop);
                 }else{
                     switch(prop){
                         case 'max' :
-                            var old = this.properties.max;
                             this.properties.max = val;
-                            console.log(old, this.properties.max, val);
-                            if(old < this.properties.max){
-                                this.properties.finished = false;
-                            }
-                            else if(old > this.properties.max){
-                                this.properties.finished = true;
+                            if(this.properties.cycleOnce){
+                                if(this.properties.finished){
+                                    if(this.properties.max > this.properties.cycleCount){
+                                        this.properties.finished = false;
+                                    }else{
+                                        this.properties.cycleCount = this.properties.max;
+                                    }
+                                }
                             }
                             break;
                         default :
-                            _prop = val;
+                            this.properties[prop] = val;
                     }
                 }
             },
@@ -278,7 +282,7 @@ var particles = function(context) {
             width:1
         }, type, _p;
         //
-        extend({}, props, properties);
+        props = extend({}, props, properties);
 
         var setParticle = function(p){
             if(typeof p === 'string'){
