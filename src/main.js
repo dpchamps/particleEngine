@@ -1,25 +1,19 @@
 
 
 var document = root.document || {};
-/**
- *  The global function that initializes the engine.
- *  @constructor particles
- *  @param {CanvasRenderingContext2D} context - The canvas context that particles will be rendered to.
- *  @example
- *  //initialize the particle engine to begin rendering particles
- *  var context = document.getElementById('canvas').getContext('2d'),
- *      engine = particles(ctx)
- */
+//The global function, where 'context' parameter is required to be an instance of CanvasRenderingContext2D
+//usage:
+
+//      var engine = particles(ctx);
 var particles = function(context) {
     if(typeof context === 'undefined'  || !(context instanceof root.CanvasRenderingContext2D)){
         throw new Error('particles must be defined with a canvas context');
     }
 
-    //internal context
+
     var _context = context;
-    /*
-     An extend function, makes deep copies
-     */
+
+    // An extend function, automatically makes deep copies
     function extend(dest, sources){
         var args = Array.prototype.slice.call(arguments);
         for(var i = 1; i < args.length; i++){
@@ -45,7 +39,7 @@ var particles = function(context) {
             b: parseInt(result[3], 16)
         } : null;
     }
-    //A min / max random generator
+    //Generate number at random between min and max
     function minMax(min, max){
         return (min) + (Math.random() * (max - min));
     }
@@ -69,24 +63,7 @@ var particles = function(context) {
     }
 
 
-    /**
-     *
-     * @object particleType
-     * @memberof! particles
-     *
-     * @property particleTypes.flame
-     * @property particleTypes.water
-     * @property particleTypes.smoke
-     * @property particleTypes.explode
-     * @property particleTypes.snow
-     *
-     * @description
-     * Predefined particle types
-     * These types are accessible from the emitter method.
-     * @example
-     * //create a new emitter with a pre defined particle type
-     * var emit = engine.emitter('snow');
-     */
+    //pre-defined particle types, used with an emitter
     var particleTypes = {
 
         flame :
@@ -102,82 +79,53 @@ var particles = function(context) {
 
     };
 
-    /**
-     * @object particle
-     * @memberof! particles
-     * @description
-     * The base particle class.
-     *
-     * The full list of properties that the engine expects a particle to have.
-     *
-     * Because this is a base object, all user supplied (and pre-defined) particle types are extended over this into a new object
-     * in the fashion of:
-     *
-     *      extend({}, particle, userDefinedObject)
-     *
-     * where extend automatically preforms a deep copy of all objects.
-     *
-     * @property {number} direction                 -Direction particle is facing in radians. (minimum to spread)
-     * @property {number} spread                    -The max spread of direction. where a particle is given a direction randomly between particle.direction and particle.spread
-     * @property {object} position                  -An object containg the particles coordinates
-     *  @property {number} position.x                -The x coordinate of the particle
-     *  @property {number} position.y                -The y coordinate of the particle
-     * @property {object} speed                     -An object containing speeds for both axis and a spread modifier.
-     * @property {number} speed.x                   -The speed the particle moves on the x-axis
-     * @property {number} speed.y                   -The speed the particle moves on the y-axis
-     * @property {number} speed.spread              -Math.random() * particle.speed..spread, applied to speed.x & speed.y
-     * @property {number} gravity                   -The maximum amount of speed to apply to the y-axis
-     * @property {array} color                      -[r,g,b] value.
-     * @property {object} size                      -An object contained height, width and spread properties for the size
-     * @property {number} x                         -The width of the particle
-     * @property {number} y                         -The height of the particle
-     * @property {number} spread                    -Math.random()*particle.size.spread applied to both x & y
-     * @property {string} aprite                    -Not yet implemented
-     * @property {string} shape                     -Not yet implemented
-     * @property {number} alpha                     -The starting opacity of a particle
-     * @property {number} decay                     -The lifetime of the particle
-     */
+
+     // The full list of properties that the engine expects a particle to have.
+
+     // Because this is a base object, all user supplied (and pre-defined) particle types are extended over this into a new object
+     // in the fashion of:
+
+     //      extend({}, particle, userDefinedObject)
+
+     //where extend automatically preforms a deep copy of all objects.
+
 
     var particle = {
-        direction : 0,
-        spread: 0,
-        position : {
-            x: 0,
-            y: 0
+        direction : 0,          //-Direction particle is facing in radians. (minimum to spread)
+        spread: 0,              //-The max spread of direction. where a particle is given a direction randomly between particle.direction and particle.spread
+        position : {            //-An object containg the particles coordinates
+            x: 0,               // -The x coordinate of the particle
+            y: 0                // -The y coordinate of the particle
         },
-        speed: {
-            x: 0,
-            y: 0,
-            spread: 0
+        speed: {                //-An object containing speeds for both axis and a spread modifier.
+            x: 0,               //-The speed the particle moves on the x-axis
+            y: 0,               //-The speed the particle moves on the y-axis
+            spread: 0           //-Math.random() * particle.speed..spread, applied to speed.x & speed.y
         },
-        gravity : 0,
+        gravity : 0,            //-The maximum amount of speed to apply to the y-axis
         gravityCount:0,
-        color : [],
-        size: {
-            height: 0,
-            width: 0,
-            spread: 0
+        color : [],             //-[r,g,b] value.
+        size: {                 //-An object contained height, width and spread properties for the size
+            height: 0,          //-The height of the particle
+            width: 0,           //-The width of the particle
+            spread: 0           //-Math.random()*particle.size.spread applied to both x & y
         },
-        sprite: false, //not implemented
-        shape: false,  //not implemented
-        alpha: 0,
-        decay: 0
+        sprite: false,          //not implemented
+        shape: false,           //not implemented
+        alpha: 0,               //-The starting opacity of a particle
+        decay: 0                //-The lifetime of the particle
     };
 
+    //defaults for the collection
     var collectionDefaults = {
-        max: 100 ,
-        density: 1,
-        cycleOnce: false,
-        cycleCount: 0,
-        finished : false,
-        stopped: false
+        max: 100 ,              //the maximum amount of particles allowed in a collection
+        density: 1,             //the amount ofparticles placed into the collection every cycle
+        cycleOnce: false,       //flag to determine if the collection cycles continuously or only once
+        cycleCount: 0,          //keeps track of the amount of particles added to the collection after cycleOnce has been set to true
+        finished : false,       //flag set to true when cycle has finished
+        stopped: false          //determines whether or not the particles are rendered
     };
-
-    /*
-
-     A collection holds an array of particles and contains functions to preform actions on them
-
-     */
+    //A collection holds an array of particles and contains functions to preform actions on them
     var collection = function(emitter, args){
         if(typeof emitter === 'undefined'){
             throw new Error("Emitter needs to be passed to a collection");

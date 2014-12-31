@@ -49,16 +49,13 @@ module.exports = function(grunt) {
       files: ['<%= jshint.files %>'],
       tasks: ['concat', 'jshint', 'qunit']
     },
-      jsdoc : {
-          dist : {
-              src: ['dist/particleEngine.js', 'README.md'],
+      docco: {
+          debug: {
+              src: ['dist/particleEngine.js'],
               options: {
-                  destination: 'docs',
-                  template : "node_modules/grunt-jsdoc/node_modules/ink-docstrap/template",
-                  configure : "node_modules/grunt-jsdoc/node_modules/ink-docstrap/template/jsdoc.conf.json"
+                  output: 'docs/'
               }
           }
-
       }
 
 
@@ -69,12 +66,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-docco');
 
   grunt.registerTask('test', ['jshint', 'qunit']);
-  grunt.registerTask('default', ['concat', 'jshint', 'qunit', 'uglify']);
+  grunt.registerTask('default', ['concat', 'jshint', 'qunit', 'uglify', 'docco']);
   grunt.registerTask('build', ['concat', 'jshint', 'uglify']);
-  grunt.registerTask('full-doc', ['concat', 'jshint', 'uglify', 'jsdoc']);
-  grunt.registerTask('q-doc', ['jsdoc']);
+  grunt.registerTask('document', ['concat', 'jshint', 'uglify', 'docco']);
+  grunt.registerTask('q-doc', ['docco']);
 
 };
